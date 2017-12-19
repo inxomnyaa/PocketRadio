@@ -1,0 +1,22 @@
+---
+name: PocketRadio
+main: xenialdan\PocketRadio\Loader
+version: 1.2.1
+api:
+- 3.0.0-ALPHA9
+- 3.0.0-ALPHA10
+authors:
+- XenialDan
+prefix: "[PocketRadio]"
+permissions:
+  pocketradio.command:
+    default: op
+    children:
+      pocketradio.command.radio:
+        default: op
+        children:
+          pocketradio.command.radio.next:
+            default: op
+          pocketradio.command.radio.volume:
+            default: true
+...
