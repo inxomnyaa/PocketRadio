@@ -23,5 +23,4 @@ Feel free to open issues with PocketRadio if you find them.
 Make sure to check a few things **before** creating an issue
  - Make sure PocketMine runs without any plugins
  - Try the latest version of PocketRadio
- - Read over the readme one more time
-After you've done all this, we'd love to help!
+ - Read over the README one more time
