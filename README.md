@@ -1,6 +1,9 @@
 # PocketRadio
 A lightweight .NBS song player for PocketMine Servers
 
+## Prerequisites
+[PocketMine](https://pmmp.io) with [forms-api](https://github.com/pmmp/PocketMine-MP/pull/1476), which is not implemented yet.
+
 ## How to use the plugin?
 Put your .nbs files into the generated "songs" folder and reload/restart the server
 
@@ -14,3 +17,11 @@ Use /radio volume to change your volume
 We collected a library of .nbs songs here: https://forums.pmmp.io/threads/200-nbs-songs.294/
 
 There soon will be a proper, separate website though, where you can submit your own .nbs files, search for songs and download them
+
+## Issues
+Feel free to open issues with PocketRadio if you find them.
+Make sure to check a few things **before** creating an issue
+ - Make sure PocketMine runs without any plugins
+ - Try the latest version of PocketRadio
+ - Read over the readme one more time
+After you've done all this, we'd love to help!
