@@ -109,12 +109,16 @@ class RadioCommand extends Command
                         $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Select a song";
                         $form = new CustomForm($title);
                         $dropdown = new Dropdown("Song", []);
-                        foreach (Loader::$songlist as $song) {
+                        foreach (Loader::$songlist as $i => $song) {
                             $song = basename($song, ".nbs");
-                            $dropdown->addOption($song);
+                            $dropdown->addOption($song, $i === 0);
                         }
                         $form->addElement($dropdown);
-                        $form->setCallable(function (Player $player, $data) {
+                        $form->setCallable(function (Player $player, $data) use ($form) {
+                            if (empty($data[0]) || $data[0] === "") {
+                                $player->sendForm($form);
+                                return;
+                            }
                             Loader::addToPlaylist($data[0] . ".nbs");
                             Loader::playNext();
                         });

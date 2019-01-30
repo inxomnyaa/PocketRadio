@@ -1,17 +1,17 @@
 ---
 name: PocketRadio
 main: xenialdan\PocketRadio\Loader
-version: 3.0.0
+version: 3.0.1
 api: [3.0.0]
 authors:
 - XenialDan
 prefix: "[PocketRadio]"
 permissions:
   pocketradio.command:
-    default: op
+    default: true
     children:
       pocketradio.command.radio:
-        default: op
+        default: true
         children:
           pocketradio.command.radio.next:
             default: op

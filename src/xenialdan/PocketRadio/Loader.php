@@ -2,7 +2,7 @@
 
 namespace xenialdan\PocketRadio;
 
-use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
+use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
@@ -161,79 +161,54 @@ class Loader extends PluginBase
                 $this->currentLength++;
                 if (empty($notes)) return;
                 foreach ($notes as $note) {
-                    #$pk = new PlaySoundPacket();
-                    $pk = new LevelSoundEventPacket();
-                    $pk->sound = LevelSoundEventPacket::SOUND_NOTE;
+                    $pk = new PlaySoundPacket();
                     switch ($value = $note->instrument) {
                         case NBSFile::INSTRUMENT_PIANO:
                             {
-                                #$pk->soundName = "note.harp";
-                                $pk->extraData = 0;
+                                $pk->soundName = "note.harp";
                                 break;
                             }
                         case NBSFile::INSTRUMENT_DOUBLE_BASS:
                             {
-                                #$pk->soundName = "note.bassattack";
-                                $pk->extraData = 4;
+                                $pk->soundName = "note.bassattack";
                                 break;
                             }
                         case NBSFile::INSTRUMENT_BASS_DRUM:
                             {
-                                #$pk->soundName = "note.bd";
-                                $pk->extraData = 1;
+                                $pk->soundName = "note.bd";
                                 break;
                             }
                         case NBSFile::INSTRUMENT_SNARE:
                             {
-                                #$pk->soundName = "note.snare";
-                                $pk->extraData = 2;
+                                $pk->soundName = "note.snare";
                                 break;
                             }
                         case NBSFile::INSTRUMENT_CLICK:
                             {
-                                #$pk->soundName = "note.hat";
-                                $pk->extraData = 3;
+                                $pk->soundName = "note.hat";
                                 break;
                             }
                         case NBSFile::INSTRUMENT_GUITAR:
                             {
-                                #$pk->soundName = "note.pling";
-                                $pk->extraData = $value;
+                                $pk->soundName = "note.pling";
                                 break;
                             }
                         case NBSFile::INSTRUMENT_FLUTE:
-                            {//TODO
-                                #$pk->soundName = "note.harp";
-                                $pk->extraData = $value;
-                                break;
-                            }
                         case NBSFile::INSTRUMENT_BELL:
-                            {//TODO
-                                #$pk->soundName = "note.harp";
-                                $pk->extraData = $value;
-                                break;
-                            }
                         case NBSFile::INSTRUMENT_CHIME:
-                            {//TODO
-                                #$pk->soundName = "note.harp";
-                                $pk->extraData = $value;
-                                break;
-                            }
                         case NBSFile::INSTRUMENT_XYLOPHONE:
                             {
-                                #$pk->soundName = "note.harp";//TODO
-                                $pk->extraData = $value;
+                                $pk->soundName = "note.harp";//TODO
                                 break;
                             }
                     }
-                    #$pk->volume = $this->song->getLayerInfo()[$note->layer]??100;
+                    $pk->volume = ($this->song->getLayerInfo()[$note->layer] ?? 100) / 100 * 3;
                     $pk->pitch = intval($note->key - 33);
                     foreach ($this->owner->getServer()->getOnlinePlayers() as $player) {
                         $pk2 = clone $pk;
-                        #$pk2->x = $player->x;
-                        #$pk2->y = $player->y;
-                        #$pk2->z = $player->z;
-                        $pk2->position = $player->asVector3()->add(0, -Loader::getSoundVolume($player) + 1);
+                        $pk2->x = $player->x;
+                        $pk2->y = $player->y - Loader::getSoundVolume($player) + 1;
+                        $pk2->z = $player->z;
                         $player->dataPacket($pk2);
                     }
                 }
