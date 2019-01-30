@@ -2,25 +2,33 @@
 A lightweight .NBS song player for PocketMine Servers
 
 ## Prerequisites
-[PocketMine](https://pmmp.io) with [forms-api](https://github.com/pmmp/PocketMine-MP/pull/1476), which is not implemented yet.
+When downloaded from poggit, none.
 
-## How to use the plugin?
-Put your .nbs files into the generated "songs" folder and reload/restart the server
+When manually installing from source, you must install customui and libnbs virions 
 
-The songs will automatically start to play.
+## Setup
+1. Put your .nbs files into the generated "songs" folder and reload / restart the server
 
-Use /radio next to skip the current song
+2. The songs will automatically start to play when a player joins the server
 
-Use /radio volume to change your volume
+## Commands
+Use `/radio next` to skip the current song
+
+Use `/radio volume` to change your volume
+
+## Planned changes
+- Change the radio interface to allow searching, skipping, looping songs
+- Add looping, toggle shuffle mode, playlists, per-user songs
+- World settings
+- Lower the default value - new players might get their ears blown :o
 
 ## Where do i get .nbs files?
-We collected a library of .nbs songs here: https://forums.pmmp.io/threads/200-nbs-songs.294/
+You can find a collection of .nbs songs here: https://forums.pmmp.io/threads/200-nbs-songs.294/
 
-There soon will be a proper, separate website though, where you can submit your own .nbs files, search for songs and download them
+<!It is planned to create a proper, separate website, where you can submit your own .nbs files, search for songs and download them>
 
 ## Issues
-Feel free to open issues with PocketRadio if you find them.
 Make sure to check a few things **before** creating an issue
- - Make sure PocketMine runs without any plugins
- - Try the latest version of PocketRadio
- - Read over the README one more time
+ - Your installation of PocketMine (pmmp) works properly, and is an official version. No support on custom builds or forks.
+ - You have the latest version of PocketRadio. Issues based on outdated releases will be closed as invalid
+ - You run a release version from poggit or the releases tab. Self-compiled versions are not supported.
