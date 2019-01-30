@@ -23,7 +23,7 @@ class Loader extends PluginBase
     /** @var Config */
     private static $volumeConfig;
     /** @var [] */
-    private static $songlist = [];
+    public static $songlist = [];
     /** @var [] */
     private static $playlist = [];
     /* Songs */
@@ -103,6 +103,12 @@ class Loader extends PluginBase
     public static function setVolume(Player $player, float $volume)
     {
         self::$volumeConfig->set($player->getName(), $volume);
+    }
+
+    public static function playNext()
+    {
+        self::getInstance()->getScheduler()->cancelAllTasks();
+        self::getInstance()->startTask();
     }
 
     public function startTask()

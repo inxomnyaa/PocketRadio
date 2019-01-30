@@ -8,8 +8,11 @@ use pocketmine\command\CommandSender;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
+use xenialdan\customui\elements\Button;
+use xenialdan\customui\elements\Dropdown;
 use xenialdan\customui\elements\Slider;
 use xenialdan\customui\windows\CustomForm;
+use xenialdan\customui\windows\SimpleForm;
 use xenialdan\PocketRadio\Loader;
 
 class RadioCommand extends Command
@@ -19,7 +22,7 @@ class RadioCommand extends Command
         parent::__construct("radio", $plugin);
         $this->setPermission("pocketradio.command.radio");
         $this->setDescription("Manage radio");
-        $this->setUsage("/radio <next>");
+        $this->setUsage("/radio | /radio volume | /radio select");
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args)
@@ -31,14 +34,52 @@ class RadioCommand extends Command
             return true;
         }
         try {
-            if (empty($args)) throw new \InvalidArgumentCountException("Too less arguments supplied");
-            //TODO
             $return = true;
-            switch ($args[0]) {
-                case "next":
+            switch ($args[0] ?? "menu") {
+                case "menu":
                     {
-                        Loader::getInstance()->getScheduler()->cancelAllTasks();
-                        Loader::getInstance()->startTask();
+                        $volume = Loader::getVolume($sender);
+                        if ($volume === false) {
+                            $sender->sendMessage(TextFormat::RED . "Error accessing volume config");
+                            return false;
+                        }
+                        $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
+                        $form = new SimpleForm($title);
+                        $form->addButton(new Button("Next"));
+                        $form->addButton(new Button("Pause"));
+                        $form->addButton(new Button("Previous"));
+                        $form->addButton(new Button("Volume"));
+                        $form->addButton(new Button("Select song"));
+                        $form->setCallable(function (Player $player, $data) {
+                            switch ($data) {
+                                case "Next":
+                                    {
+                                        Loader::playNext();
+                                        break;
+                                    }
+                                case "Pause":
+                                    {
+                                        Loader::getInstance()->getScheduler()->cancelAllTasks();
+                                        break;
+                                    }
+                                case "Previous":
+                                    {
+                                        $player->sendMessage("Under todo, can not play previous yet");
+                                        break;
+                                    }
+                                case "Volume":
+                                    {
+                                        $player->getServer()->dispatchCommand($player, "radio volume");
+                                        break;
+                                    }
+                                case "Select song":
+                                    {
+                                        $player->getServer()->dispatchCommand($player, "radio select");
+                                        break;
+                                    }
+                            }
+                        });
+                        $sender->sendForm($form);
                         break;
                     }
                 case "volume":
@@ -52,13 +93,30 @@ class RadioCommand extends Command
                         $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
                         $form = new CustomForm($title);
                         try {
-                            $slider = new Slider("Volume", 0, 100, 10.0);
-                            $slider->setDefaultValue($volume);
-                            $form->addElement($slider);
+                            $dropdown = new Slider("Volume", 0, 100, 10.0);
+                            $dropdown->setDefaultValue($volume);
+                            $form->addElement($dropdown);
                         } catch (\Exception $e) {
                         }
                         $form->setCallable(function (Player $player, $data) {
                             Loader::setVolume($player, $data[0]);
+                        });
+                        $sender->sendForm($form);
+                        break;
+                    }
+                case "select":
+                    {
+                        $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Select a song";
+                        $form = new CustomForm($title);
+                        $dropdown = new Dropdown("Song", []);
+                        foreach (Loader::$songlist as $song) {
+                            $song = basename($song, ".nbs");
+                            $dropdown->addOption($song);
+                        }
+                        $form->addElement($dropdown);
+                        $form->setCallable(function (Player $player, $data) {
+                            Loader::addToPlaylist($data[0] . ".nbs");
+                            Loader::playNext();
                         });
                         $sender->sendForm($form);
                         break;
