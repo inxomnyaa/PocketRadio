@@ -2,6 +2,7 @@
 
 namespace xenialdan\PocketRadio;
 
+use pocketmine\math\Vector2;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
@@ -10,6 +11,7 @@ use pocketmine\plugin\PluginException;
 use pocketmine\scheduler\Task;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
+use xenialdan\libnbs\Layer;
 use xenialdan\libnbs\NBSFile;
 use xenialdan\PocketRadio\commands\RadioCommand;
 
@@ -161,56 +163,29 @@ class Loader extends PluginBase
                 $this->currentLength++;
                 if (empty($notes)) return;
                 foreach ($notes as $note) {
+                    /** @var Layer $layer */
+                    $layer = $this->song->getLayerInfo()[$note->layer];
                     $pk = new PlaySoundPacket();
-                    switch ($value = $note->instrument) {
-                        case NBSFile::INSTRUMENT_PIANO:
-                            {
-                                $pk->soundName = "note.harp";
-                                break;
-                            }
-                        case NBSFile::INSTRUMENT_DOUBLE_BASS:
-                            {
-                                $pk->soundName = "note.bassattack";
-                                break;
-                            }
-                        case NBSFile::INSTRUMENT_BASS_DRUM:
-                            {
-                                $pk->soundName = "note.bd";
-                                break;
-                            }
-                        case NBSFile::INSTRUMENT_SNARE:
-                            {
-                                $pk->soundName = "note.snare";
-                                break;
-                            }
-                        case NBSFile::INSTRUMENT_CLICK:
-                            {
-                                $pk->soundName = "note.hat";
-                                break;
-                            }
-                        case NBSFile::INSTRUMENT_GUITAR:
-                            {
-                                $pk->soundName = "note.pling";
-                                break;
-                            }
-                        case NBSFile::INSTRUMENT_FLUTE:
-                        case NBSFile::INSTRUMENT_BELL:
-                        case NBSFile::INSTRUMENT_CHIME:
-                        case NBSFile::INSTRUMENT_XYLOPHONE:
-                            {
-                                $pk->soundName = "note.harp";//TODO
-                                break;
-                            }
-                    }
-                    $pk->volume = ($this->song->getLayerInfo()[$note->layer] ?? 100) / 100 * 3;
+                    //TODO custom sound support, figure out path in resource pack
+                    $pk->soundName = NBSFile::MAPPING[$note->instrument] ?? NBSFile::MAPPING[NBSFile::INSTRUMENT_PIANO];
+                    $pk->volume = ($layer->volume ?? 100) / 100 * 3;
                     $pk->pitch = intval($note->key - 33);
                     foreach ($this->owner->getServer()->getOnlinePlayers() as $player) {
-                        $pk2 = clone $pk;
-                        $pk2->x = $player->x;
-                        $pk2->y = $player->y - Loader::getSoundVolume($player) + 1;
-                        $pk2->z = $player->z;
-                        $player->dataPacket($pk2);
+                        $vector = $player->asVector3();
+                        if ($layer->stereo !== 100) {//Not centered, modify position. TODO check
+                            $leftdirection = (new Vector2(-sin(deg2rad($player->yaw) - M_PI_2), -cos(deg2rad($player->yaw) - M_PI_2)))->normalize();
+                            $multiplier = 2 * ($layer->stereo - 100) / 100;
+                            $leftdirection = $leftdirection->multiply($multiplier);
+                            $vector->add($leftdirection->x, 0, $leftdirection->y);
+                            unset($leftdirection);
+                        }
+                        $pk->x = $vector->x;
+                        $pk->y = $vector->y - Loader::getSoundVolume($player) + 1;
+                        $pk->z = $vector->z;
+                        $player->dataPacket($pk);
+                        unset($vector);
                     }
+                    unset($pk);
                 }
             }
         }, 20 * 3, floor($song->tempo / 100) / 2.5);
