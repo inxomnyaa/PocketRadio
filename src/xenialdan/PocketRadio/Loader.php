@@ -173,11 +173,12 @@ class Loader extends PluginBase
                     foreach ($this->owner->getServer()->getOnlinePlayers() as $player) {
                         $vector = $player->asVector3();
                         if ($layer->stereo !== 100) {//Not centered, modify position. TODO check
-                            $leftdirection = (new Vector2(-sin(deg2rad($player->yaw) - M_PI_2), -cos(deg2rad($player->yaw) - M_PI_2)))->normalize();
+                            $yaw = ($player->yaw - 90) % 360;
+                            $add = (new Vector2(-cos(deg2rad($yaw) - M_PI_2), -sin(deg2rad($yaw) - M_PI_2)))->normalize();
                             $multiplier = 2 * ($layer->stereo - 100) / 100;
-                            $leftdirection = $leftdirection->multiply($multiplier);
-                            $vector->add($leftdirection->x, 0, $leftdirection->y);
-                            unset($leftdirection);
+                            $add = $add->multiply($multiplier);
+                            $vector->add($add->x, 0, $add->y);
+                            unset($add);
                         }
                         $pk->x = $vector->x;
                         $pk->y = $vector->y - Loader::getSoundVolume($player) + 1;
