@@ -50,7 +50,7 @@ class Loader extends PluginBase
         $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
         $this->getServer()->getCommandMap()->registerAll("pocketradio", [new RadioCommand($this)]);
         @mkdir($this->getDataFolder() . "songs");
-        self::$songlist = glob($this->getDataFolder() . "songs/*.nbs");
+        self::$songlist = glob($this->getDataFolder() . "songs" . DIRECTORY_SEPARATOR . "*.nbs");
         $this->saveResource("volume.yml");
         self::$volumeConfig = new Config($this->getDataFolder() . "volume.yml");
     }

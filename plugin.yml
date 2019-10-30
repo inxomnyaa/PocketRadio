@@ -2,7 +2,7 @@
 name: PocketRadio
 main: xenialdan\PocketRadio\Loader
 version: 4.0.1
-api: [3.9.4]
+api: [3.9.3]
 authors:
 - XenialDan
 prefix: "[PocketRadio]"
