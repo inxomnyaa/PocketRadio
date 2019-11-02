@@ -1,11 +1,11 @@
 ---
 name: PocketRadio
 main: xenialdan\PocketRadio\Loader
-version: 4.0.1
+version: 4.1.0
 api: [3.9.3]
 authors:
 - XenialDan
-prefix: "[PocketRadio]"
+prefix: "Radio"
 permissions:
   pocketradio.command:
     default: true
