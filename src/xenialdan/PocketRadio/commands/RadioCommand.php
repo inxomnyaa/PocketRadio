@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace xenialdan\PocketRadio\commands;
 
 use pocketmine\command\CommandSender;
+use pocketmine\command\PluginCommand;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
@@ -16,7 +17,7 @@ use xenialdan\customui\windows\SimpleForm;
 use xenialdan\libnbs\Song;
 use xenialdan\PocketRadio\Loader;
 
-class RadioCommand extends Command
+class RadioCommand extends PluginCommand
 {
     public function __construct(Plugin $plugin)
     {
