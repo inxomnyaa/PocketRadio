@@ -20,7 +20,6 @@ Use `/radio volume` to change your volume
 - Change the radio interface to allow searching, skipping, looping songs
 - Add looping, toggle shuffle mode, playlists, per-user songs
 - World settings
-- Lower the default value - new players might get their ears blown :o
 
 ## Where do i get .nbs files?
 You can find a collection of .nbs songs here: https://forums.pmmp.io/threads/200-nbs-songs.294/

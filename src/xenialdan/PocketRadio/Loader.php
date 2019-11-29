@@ -25,6 +25,8 @@ class Loader extends PluginBase
     public static $songlist = [];
     /* Songs */
     public static $tasks = [];
+    /** @var int */
+    public const DEFAULT_VOLUME = 50;
 
     /**
      * Returns an instance of the plugin
@@ -86,9 +88,8 @@ class Loader extends PluginBase
                 foreach ($errors as $i => $error) {
                     Loader::getInstance()->getLogger()->error($error);
                     if ($i > 5) break;
-                    if ($i === 0) print next($songlist);
+                    next($songlist);
                 }
-                #Loader::playNext();
             }
         });
     }
@@ -97,18 +98,13 @@ class Loader extends PluginBase
     {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
         $this->getServer()->getCommandMap()->registerAll("pocketradio", [new RadioCommand($this)]);
-        $this->saveResource("volume.yml");
         self::$volumeConfig = new Config($this->getDataFolder() . "volume.yml");
     }
 
     public function onDisable()
     {
-        $all = self::$volumeConfig->getAll();
-        foreach (self::$volumeConfig->getAll(true) as $key) {
-            self::$volumeConfig->remove($key);
-        }
-        $all = array_filter($all, function ($value) {
-            return floor($value) != 100.0; // Remove unchanged values
+        $all = array_filter(self::$volumeConfig->getAll(), function ($value) {
+            return ((int)floor($value)) !== self::DEFAULT_VOLUME; // Remove unchanged values
         });
         self::$volumeConfig->setAll($all);
         self::$volumeConfig->save();
@@ -137,7 +133,7 @@ class Loader extends PluginBase
      */
     public static function getVolume(Player $player)
     {
-        return self::$volumeConfig->get($player->getName(), 100);
+        return self::$volumeConfig->get($player->getName(), self::DEFAULT_VOLUME);
     }
 
     public static function getSoundVolume(Player $player)

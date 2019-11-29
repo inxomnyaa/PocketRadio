@@ -19,22 +19,15 @@ class SongPlayerTask extends Task
 {
     public $song = null;
     public $songfilename = "";
-    public $currentLength = 0;
     /** @var Plugin|Loader */
     public $owner;
-    /** @var int */
-    public $lastTick = -1;
-    public $lastPlayed;
     /** @var bool */
     protected $playing = false;
     /** @var int */
     private $tick = -1;
-    /** @var float */
-    private $startTime;
 
     public function __construct(Plugin $owner, string $songfilename, Song $song)
     {
-        print $song . PHP_EOL;
         $this->owner = $owner;
         $this->song = $song;
         $this->songfilename = $songfilename;
@@ -52,11 +45,7 @@ class SongPlayerTask extends Task
      */
     public function onRun(int $currentTick)
     {
-        #if(!$this->startTime){
-        #    $this->startTime = microtime(true);
-        #}
         if (!$this->playing) {
-            //$this->startTime = microtime(true) - (microtime(true) - $this->startTime);
             return;
         }
         if ($this->tick > $this->song->getLength()) {
@@ -65,17 +54,9 @@ class SongPlayerTask extends Task
             Loader::getInstance()::playNext();
             return;
         }
-        #$tick = $this->tick + 1;
-        #$delayMillis = 1000/$this->song->getSpeed();
-        #$duration = round((microtime(true) - $this->startTime)*1000,0);
-        #$ctick = floor($duration);
-        //print "t{$tick}\t:d$duration\t:x".($duration/$delayMillis)."\t:s".($duration%$delayMillis)."\t:ctick".($ctick)."\t".PHP_EOL;
-        #if (($duration%$delayMillis) < 1000/20) {
         $this->tick++;
-        #    print "♪".$this->tick." ".$duration." ".($duration%$delayMillis);
         foreach ($this->owner->getServer()->getOnlinePlayers() as $player)
             $this->playTick($player, $this->tick);
-        #}
     }
 
     public function playTick(Player $player, int $tick): void
@@ -104,7 +85,7 @@ class SongPlayerTask extends Task
             if ($layer->stereo !== 100) {//Not centered, modify position. TODO check
                 $yaw = ($player->yaw - 90) % 360;
                 $add = (new Vector2(-cos(deg2rad($yaw) - M_PI_2), -sin(deg2rad($yaw) - M_PI_2)))->normalize();
-                $multiplier = 2 * ($layer->stereo - 100) / 100;
+                $multiplier = 2 * (($layer->stereo - 100) / 100);
                 $add = $add->multiply($multiplier);
                 $vector->add($add->x, 0, $add->y);
             }

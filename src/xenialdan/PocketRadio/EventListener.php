@@ -2,7 +2,6 @@
 
 namespace xenialdan\PocketRadio;
 
-
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\plugin\Plugin;
