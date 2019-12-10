@@ -1,9 +1,9 @@
 ---
 name: PocketRadio
 main: xenialdan\PocketRadio\Loader
-version: 4.1.1
-api: [3.9.3]
-mcpe-protocol: [361]
+version: 4.2.0
+api: [3.10.1]
+mcpe-protocol: [388]
 authors:
 - XenialDan
 prefix: "Radio"
