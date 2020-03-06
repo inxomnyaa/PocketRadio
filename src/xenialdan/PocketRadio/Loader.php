@@ -42,6 +42,7 @@ class Loader extends PluginBase
         self::$instance = $this;
         $songPath = $this->getDataFolder() . "songs";
         @mkdir($songPath);
+        self::$volumeConfig = new Config($this->getDataFolder() . "volume.yml");
         $this->getServer()->getAsyncPool()->submitTask(new class($songPath) extends AsyncTask
         {
             private $songPath;
@@ -82,7 +83,7 @@ class Loader extends PluginBase
                  * @var string[] $errors
                  */
                 [$songlist, $errors] = [$result["list"], $result["errors"]];
-                $server->getLogger()->info("Loaded " . count($songlist) . " songs");
+                Loader::getInstance()->getLogger()->info("Loaded " . count($songlist) . " songs");
                 $songlist = array_values($songlist);
                 Loader::$songlist = $songlist;
                 foreach ($errors as $i => $error) {
@@ -98,17 +99,16 @@ class Loader extends PluginBase
     {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
         $this->getServer()->getCommandMap()->registerAll("pocketradio", [new RadioCommand($this)]);
-        self::$volumeConfig = new Config($this->getDataFolder() . "volume.yml");
     }
 
     public function onDisable()
     {
+        self::$songlist = [];
         $all = array_filter(self::$volumeConfig->getAll(), function ($value) {
             return ((int)floor($value)) !== self::DEFAULT_VOLUME; // Remove unchanged values
         });
         self::$volumeConfig->setAll($all);
         self::$volumeConfig->save();
-        self::$songlist = [];
     }
 
     public static function getRandomSong(): ?Song
@@ -129,19 +129,23 @@ class Loader extends PluginBase
 
     /**
      * @param Player $player
-     * @return bool|float|null
+     * @return int 0...100
      */
     public static function getVolume(Player $player)
     {
         return self::$volumeConfig->get($player->getName(), self::DEFAULT_VOLUME);
     }
 
+    /**
+     * @param Player $player
+     * @return float 0...1
+     */
     public static function getSoundVolume(Player $player)
     {
         return self::getVolume($player) / 100;
     }
 
-    public static function setVolume(Player $player, float $volume)
+    public static function setVolume(Player $player, int $volume)
     {
         self::$volumeConfig->set($player->getName(), $volume);
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace xenialdan\PocketRadio\task;
 
-use pocketmine\math\Vector2;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
@@ -70,7 +69,7 @@ class SongPlayerTask extends Task
                 continue;
             }
 
-            $volume = ($layer->getVolume() * (int)$playerVolume) / 100;//TODO add song volume
+            $volume = ($layer->getVolume() * $playerVolume) / 100;//TODO add song volume
             //shift nbs range for note block sounds (33 - 57) to start at 0
             //then shift by some extra -12 for the
             //pitch calculation: https://minecraft.gamepedia.com/Note_Block#Notes
@@ -82,13 +81,13 @@ class SongPlayerTask extends Task
             $pk->pitch = $pitch;
             $pk->volume = $volume;
             $vector = $player->asVector3();
-            if ($layer->stereo !== 100) {//Not centered, modify position. TODO check
+            /*if ($layer->stereo !== 100) {//Not centered, modify position. TODO fix
                 $yaw = ($player->yaw - 90) % 360;
                 $add = (new Vector2(-cos(deg2rad($yaw) - M_PI_2), -sin(deg2rad($yaw) - M_PI_2)))->normalize();
                 $multiplier = 2 * (($layer->stereo - 100) / 100);
                 $add = $add->multiply($multiplier);
                 $vector->add($add->x, 0, $add->y);
-            }
+            }*/
             $pk->x = $vector->x;
             $pk->y = $vector->y + $player->getEyeHeight();
             $pk->z = $vector->z;
