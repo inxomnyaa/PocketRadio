@@ -69,7 +69,7 @@ class SongPlayerTask extends Task
                 continue;
             }
 
-            $volume = ($layer->getVolume() * $playerVolume) / 100;//TODO add song volume
+            $volume = (($layer->getVolume() * Loader:getVolume($onlinePlayer)) / 10000);
             //shift nbs range for note block sounds (33 - 57) to start at 0
             //then shift by some extra -12 for the
             //pitch calculation: https://minecraft.gamepedia.com/Note_Block#Notes
