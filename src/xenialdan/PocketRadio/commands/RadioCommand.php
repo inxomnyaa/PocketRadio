@@ -44,7 +44,7 @@ class RadioCommand extends PluginCommand
                     $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
                     $form = new SimpleForm($title);
                     $form->addButton(new Button("Next");$button->addImage(Button::IMAGE_TYPE_PATH, "textures/items/melon_speckled"));
-                    $form->addButton(new Button("Pause"); $button->addImage(Button::IMAGE_TYPE_PATH, "textures/items/totem");
+                    $form->addButton(new Button("Pause"); $button->addImage(Button::IMAGE_TYPE_PATH, "textures/items/totem"));
                     $form->addButton(new Button("Previous"); $button->addImage(Button::IMAGE_TYPE_PATH, "textures/items/elyta"));
                     $form->addButton(new Button("Volume"); $button->addImage(Button::IMAGE_TYPE_PATH, "textures/items/record_block"));
                     $form->addButton(new Button("Select song"); $button->addImage(Button::IMAGE_TYPE_PATH, "textures/items/painting"));
