@@ -6,10 +6,10 @@ namespace xenialdan\PocketRadio\commands;
 
 use Exception;
 use pocketmine\command\Command;
+use pocketmine\command\CommandExecutor;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
-use pocketmine\plugin\PluginOwned;
 use pocketmine\utils\TextFormat;
 use xenialdan\customui\elements\Button;
 use xenialdan\customui\elements\Dropdown;
@@ -19,38 +19,17 @@ use xenialdan\customui\windows\SimpleForm;
 use xenialdan\libnbs\Song;
 use xenialdan\PocketRadio\Loader;
 
-class RadioCommand extends Command implements PluginOwned
+class RadioCommand implements CommandExecutor
 {
-    public Plugin $owner;
 
-    public function __construct(Plugin $plugin)
+    public function onCommand(CommandSender $sender, Command $command, string $commandLabel, array $args): bool
     {
-        parent::__construct("radio");
-        $this->setPermission("pocketradio.command.radio");
-        $this->setDescription("Manage radio");
-        $this->setUsage("/radio | /radio volume | /radio select");
-        $this->owner = $plugin;
-    }
-
-    public function getOwningPlugin(): Plugin
-    {
-        return $this->owner;
-    }
-
-    public function execute(CommandSender $sender, string $commandLabel, array $args)
-    {
-        /** @var Player $sender */
-        $return = $sender->hasPermission($this->getPermission());
-        if (!$return) {
-            $sender->sendMessage(TextFormat::RED . "You do not have permissions to run this command");
-            return true;
-        }
+        $return = true;
         try {
-            $return = true;
             switch ($args[0] ?? "menu") {
                 case "menu":
                 {
-                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getOwningPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
+                    $title = TextFormat::BLUE . TextFormat::BOLD . $command->getOwningPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
                     $form = new SimpleForm($title);
                     $form->addButton(new Button("Next"));
                     $form->addButton(new Button("Pause"));
@@ -97,7 +76,7 @@ class RadioCommand extends Command implements PluginOwned
                         $return = false;
                         break;
                     }
-                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getOwningPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
+                    $title = TextFormat::BLUE . TextFormat::BOLD . $command->getOwningPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
                     $form = new CustomForm($title);
                     try {
                         $slider = new Slider("Volume", 0, 100, 10.0);
@@ -113,7 +92,7 @@ class RadioCommand extends Command implements PluginOwned
                 }
                 case "select":
                 {
-                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getOwningPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Select a song";
+                    $title = TextFormat::BLUE . TextFormat::BOLD . $command->getOwningPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Select a song";
                     $form = new CustomForm($title);
                     $dropdown = new Dropdown("Song", []);
                     /** @var Song[] $d */
@@ -136,12 +115,13 @@ class RadioCommand extends Command implements PluginOwned
                 }
                 default:
                 {
+                    $return = false;
                     throw new \InvalidArgumentException("Unknown argument supplied: " . $args[0]);
                 }
             }
         } catch (\Error $error) {
-            $this->getOwningPlugin()->getLogger()->error($error->getMessage());
-            $this->getOwningPlugin()->getLogger()->error($error->getLine());
+            $command->getOwningPlugin()->getLogger()->error($error->getMessage());
+            $command->getOwningPlugin()->getLogger()->error($error->getLine());
             $return = false;
         } finally {
             return $return;

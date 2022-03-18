@@ -2,6 +2,7 @@
 
 namespace xenialdan\PocketRadio;
 
+use pocketmine\command\PluginCommand;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\AsyncTask;
@@ -98,7 +99,11 @@ class Loader extends PluginBase
     public function onEnable(): void
     {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
-        $this->getServer()->getCommandMap()->registerAll("pocketradio", [new RadioCommand($this)]);
+        $radioCommand = new PluginCommand("radio", $this, new RadioCommand());
+        $radioCommand->setPermission("pocketradio.command.radio");
+        $radioCommand->setDescription("Manage radio");
+        $radioCommand->setUsage("/radio | /radio volume | /radio select");
+        $this->getServer()->getCommandMap()->registerAll("pocketradio", [$radioCommand]);
     }
 
     public function onDisable(): void
