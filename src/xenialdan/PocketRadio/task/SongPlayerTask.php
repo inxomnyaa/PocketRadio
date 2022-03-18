@@ -6,7 +6,7 @@ namespace xenialdan\PocketRadio\task;
 
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\player\Player;
-use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\Task;
 use pocketmine\utils\TextFormat;
 use xenialdan\libnbs\Layer;
@@ -18,14 +18,14 @@ class SongPlayerTask extends Task
 {
     public $song = null;
     public $songfilename = "";
-    /** @var Plugin|Loader */
+    /** @var PluginBase */
     public $owner;
     /** @var bool */
     protected $playing = false;
     /** @var int */
     private $tick = -1;
 
-    public function __construct(Plugin $owner, string $songfilename, Song $song)
+    public function __construct(PluginBase $owner, string $songfilename, Song $song)
     {
         $this->owner = $owner;
         $this->song = $song;

@@ -21,8 +21,7 @@ use xenialdan\PocketRadio\Loader;
 
 class RadioCommand extends Command implements PluginOwned
 {
-    /** @var Loader */
-    public $owner;
+    public Plugin $owner;
 
     public function __construct(Plugin $plugin)
     {
