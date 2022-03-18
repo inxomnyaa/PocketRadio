@@ -14,7 +14,7 @@ class SongPlayerATask extends AsyncTask
      *
      * @return void
      */
-    public function onRun()
+    public function onRun(): void
     {
         // TODO: Implement onRun() method.
     }

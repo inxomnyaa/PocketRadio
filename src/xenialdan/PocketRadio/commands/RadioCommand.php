@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace xenialdan\PocketRadio\commands;
 
 use Exception;
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginOwned;
 use pocketmine\utils\TextFormat;
 use xenialdan\customui\elements\Button;
 use xenialdan\customui\elements\Dropdown;
@@ -18,14 +19,23 @@ use xenialdan\customui\windows\SimpleForm;
 use xenialdan\libnbs\Song;
 use xenialdan\PocketRadio\Loader;
 
-class RadioCommand extends PluginCommand
+class RadioCommand extends Command implements PluginOwned
 {
+    /** @var Loader */
+    public $owner;
+
     public function __construct(Plugin $plugin)
     {
-        parent::__construct("radio", $plugin);
+        parent::__construct("radio");
         $this->setPermission("pocketradio.command.radio");
         $this->setDescription("Manage radio");
         $this->setUsage("/radio | /radio volume | /radio select");
+        $this->owner = $plugin;
+    }
+
+    public function getOwningPlugin(): Plugin
+    {
+        return $this->owner;
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args)
@@ -41,7 +51,7 @@ class RadioCommand extends PluginCommand
             switch ($args[0] ?? "menu") {
                 case "menu":
                 {
-                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
+                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getOwningPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
                     $form = new SimpleForm($title);
                     $form->addButton(new Button("Next"));
                     $form->addButton(new Button("Pause"));
@@ -88,7 +98,7 @@ class RadioCommand extends PluginCommand
                         $return = false;
                         break;
                     }
-                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
+                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getOwningPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
                     $form = new CustomForm($title);
                     try {
                         $slider = new Slider("Volume", 0, 100, 10.0);
@@ -104,7 +114,7 @@ class RadioCommand extends PluginCommand
                 }
                 case "select":
                 {
-                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Select a song";
+                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getOwningPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Select a song";
                     $form = new CustomForm($title);
                     $dropdown = new Dropdown("Song", []);
                     /** @var Song[] $d */
@@ -131,8 +141,8 @@ class RadioCommand extends PluginCommand
                 }
             }
         } catch (\Error $error) {
-            $this->getPlugin()->getLogger()->error($error->getMessage());
-            $this->getPlugin()->getLogger()->error($error->getLine());
+            $this->getOwningPlugin()->getLogger()->error($error->getMessage());
+            $this->getOwningPlugin()->getLogger()->error($error->getLine());
             $return = false;
         } finally {
             return $return;
