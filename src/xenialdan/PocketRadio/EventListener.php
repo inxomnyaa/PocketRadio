@@ -8,7 +8,7 @@ use pocketmine\plugin\Plugin;
 
 class EventListener implements Listener
 {
-    /** @var Plugin */
+    /** @var Loader */
     public $owner;
 
     public function __construct(Plugin $plugin)
