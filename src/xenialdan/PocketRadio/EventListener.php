@@ -4,14 +4,13 @@ namespace xenialdan\PocketRadio;
 
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
-use pocketmine\plugin\Plugin;
 
 class EventListener implements Listener
 {
     /** @var Loader */
     public $owner;
 
-    public function __construct(Plugin $plugin)
+    public function __construct(Loader $plugin)
     {
         $this->owner = $plugin;
     }
