@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace xenialdan\PocketRadio\task;
 
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\scheduler\Task;
 use pocketmine\utils\TextFormat;
@@ -17,7 +17,7 @@ use xenialdan\PocketRadio\Loader;
 class SongPlayerTask extends Task
 {
     public $song = null;
-    public $songfilename = "";
+    public string $songfilename = "";
     /** @var Plugin|Loader */
     public $owner;
     /** @var bool */
@@ -30,19 +30,15 @@ class SongPlayerTask extends Task
         $this->owner = $owner;
         $this->song = $song;
         $this->songfilename = $songfilename;
-        Loader::$tasks[] = $this->getTaskId();
+        Loader::$tasks[] = $song->getTitle();
         $this->playing = true;
         $owner->getServer()->broadcastMessage(TextFormat::GREEN . $this->owner->getDescription()->getPrefix() . " Now playing: " . (empty($this->song->getTitle()) ? basename($songfilename, ".nbs") : $this->song->getTitle()) . (empty($this->song->getAuthor()) ? "" : " by " . $this->song->getAuthor()));
     }
 
     /**
-     * Actions to execute when run
-     *
-     * @param int $currentTick
-     *
      * @return void
      */
-    public function onRun(int $currentTick)
+    public function onRun(): void
     {
         if (!$this->playing) {
             return;
@@ -63,7 +59,7 @@ class SongPlayerTask extends Task
         $playerVolume = Loader::getSoundVolume($player);
 
         /** @var Layer $layer */
-        foreach ($this->song->getLayerHashMap()->values()->toArray() as $layer) {
+        foreach ($this->song->getLayerHashMap() as $layer) {
             $note = $layer->getNote($tick);
             if ($note === null) {
                 continue;
@@ -80,7 +76,7 @@ class SongPlayerTask extends Task
             $pk->soundName = $sound;
             $pk->pitch = $pitch;
             $pk->volume = $volume;
-            $vector = $player->asVector3();
+            $vector = $player->getPosition()->asVector3();
             /*if ($layer->stereo !== 100) {//Not centered, modify position. TODO fix
                 $yaw = ($player->yaw - 90) % 360;
                 $add = (new Vector2(-cos(deg2rad($yaw) - M_PI_2), -sin(deg2rad($yaw) - M_PI_2)))->normalize();
@@ -91,7 +87,7 @@ class SongPlayerTask extends Task
             $pk->x = $vector->x;
             $pk->y = $vector->y + $player->getEyeHeight();
             $pk->z = $vector->z;
-            $player->dataPacket($pk);
+            $player->getNetworkSession()->sendDataPacket($pk);
             unset($add, $pk, $vector, $note);
         }
     }
