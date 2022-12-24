@@ -7,9 +7,17 @@ When downloaded from poggit, none.
 When manually installing from source, you must install customui and libnbs virions 
 
 ## Setup
-1. Put your .nbs files into the generated "songs" folder and reload / restart the server
+1. Install the .PHAR file into the "plugins" folder.
 
-2. The songs will automatically start to play when a player joins the server
+2. Install DEVirion in the "plugins" folder. <a href="https://poggit.pmmp.io/p/DEVirion">DEVirion</a>
+
+3. Install libnbs into the "virions" folder. <a href="https://poggit.pmmp.io/ci/thebigsmileXD/libnbs/~/dev:10">LibNBS</a>
+
+4. Install customui in the "virions" folder. <a href="https://poggit.pmmp.io/ci/thebigsmileXD/customui/~/dev:37">CustomUI</a>
+
+5. Put your .nbs files into the generated "songs" folder and reload / restart the server
+
+6. The songs will automatically start to play when a player joins the server
 
 ## Commands
 Use `/radio next` to skip the current song
