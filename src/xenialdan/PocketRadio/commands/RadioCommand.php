@@ -4,138 +4,77 @@ declare(strict_types=1);
 
 namespace xenialdan\PocketRadio\commands;
 
-use Exception;
+use CortexPE\Commando\BaseCommand;
+use jojoe77777\FormAPI\SimpleForm;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
-use pocketmine\Player;
-use pocketmine\plugin\Plugin;
+use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
-use xenialdan\customui\elements\Button;
-use xenialdan\customui\elements\Dropdown;
-use xenialdan\customui\elements\Slider;
-use xenialdan\customui\windows\CustomForm;
-use xenialdan\customui\windows\SimpleForm;
-use xenialdan\libnbs\Song;
 use xenialdan\PocketRadio\Loader;
 
-class RadioCommand extends PluginCommand
-{
-    public function __construct(Plugin $plugin)
-    {
-        parent::__construct("radio", $plugin);
-        $this->setPermission("pocketradio.command.radio");
-        $this->setDescription("Manage radio");
-        $this->setUsage("/radio | /radio volume | /radio select");
-    }
+class RadioCommand extends BaseCommand{
+	protected function prepare() : void{
+		$this->setPermission("pocketradio.command.radio");
+		$this->registerSubCommand(new RadioVolumeCommand(Loader::getInstance(), "volume"));
+		$this->registerSubCommand(new RadioSelectCommand(Loader::getInstance(), "select"));
+		$this->registerSubCommand(new RadioNextCommand(Loader::getInstance(), "next"));
+		$this->registerSubCommand(new RadioPauseCommand(Loader::getInstance(), "pause"));
+	}
 
-    public function execute(CommandSender $sender, string $commandLabel, array $args)
-    {
-        /** @var Player $sender */
-        $return = $sender->hasPermission($this->getPermission());
-        if (!$return) {
-            $sender->sendMessage(TextFormat::RED . "You do not have permissions to run this command");
-            return true;
-        }
-        try {
-            $return = true;
-            switch ($args[0] ?? "menu") {
-                case "menu":
-                {
-                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
-                    $form = new SimpleForm($title);
-                    $form->addButton(new Button("Next"));
-                    $form->addButton(new Button("Pause"));
-                    $form->addButton(new Button("Previous"));
-                    $form->addButton(new Button("Volume"));
-                    $form->addButton(new Button("Select song"));
-                    $form->setCallable(function (Player $player, $data) {
-                        switch ($data) {
-                            case "Next":
-                            {
-                                Loader::playNext();
-                                break;
-                            }
-                            case "Pause":
-                            {
-                                Loader::getInstance()->getScheduler()->cancelAllTasks();
-                                break;
-                            }
-                            case "Previous":
-                            {
-                                $player->sendMessage("Under todo, can not play previous yet");
-                                break;
-                            }
-                            case "Volume":
-                            {
-                                $player->getServer()->dispatchCommand($player, "radio volume");
-                                break;
-                            }
-                            case "Select song":
-                            {
-                                $player->getServer()->dispatchCommand($player, "radio select");
-                                break;
-                            }
-                        }
-                    });
-                    $sender->sendForm($form);
-                    break;
-                }
-                case "volume":
-                {
-                    $volume = Loader::getVolume($sender);
-                    if ($volume === false) {
-                        $sender->sendMessage(TextFormat::RED . "Error accessing volume config");
-                        $return = false;
-                        break;
-                    }
-                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Change your volume";
-                    $form = new CustomForm($title);
-                    try {
-                        $slider = new Slider("Volume", 0, 100, 10.0);
-                        $slider->setDefaultValue($volume);
-                        $form->addElement($slider);
-                    } catch (Exception $e) {
-                    }
-                    $form->setCallable(function (Player $player, $data) {
-                        Loader::setVolume($player, (int)$data[0]);
-                    });
-                    $sender->sendForm($form);
-                    break;
-                }
-                case "select":
-                {
-                    $title = TextFormat::BLUE . TextFormat::BOLD . $this->getPlugin()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Select a song";
-                    $form = new CustomForm($title);
-                    $dropdown = new Dropdown("Song", []);
-                    /** @var Song[] $d */
-                    $d = [];
-                    foreach (Loader::$songlist as $i => $song) {
-                        $songName = basename($song->getPath(), ".nbs");
-                        $d[$songName] = $song;
-                        $dropdown->addOption($songName, $i === 0);
-                    }
-                    $form->addElement($dropdown);
-                    $form->setCallable(function (Player $player, $data) use ($form, $d) {
-                        if (empty($data[0]) || $data[0] === "") {
-                            $player->sendForm($form);
-                            return;
-                        }
-                        Loader::playNext($d[$data[0]] ?? null);
-                    });
-                    $sender->sendForm($form);
-                    break;
-                }
-                default:
-                {
-                    throw new \InvalidArgumentException("Unknown argument supplied: " . $args[0]);
-                }
-            }
-        } catch (\Error $error) {
-            $this->getPlugin()->getLogger()->error($error->getMessage());
-            $this->getPlugin()->getLogger()->error($error->getLine());
-            $return = false;
-        } finally {
-            return $return;
-        }
-    }
+
+	public function onRun(CommandSender $sender, string $aliasUsed, array $args) : void{
+		if(!$sender instanceof Player){
+			$sender->sendMessage(TextFormat::RED . "This command can only be used in-game");
+			return;
+		}
+		$title = TextFormat::BLUE . TextFormat::BOLD . Loader::getInstance()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Controll the radio";
+		$form = (new SimpleForm(function(Player $player, $data) : void{
+			switch($data){
+				case "next":
+				{
+					$player->getServer()->dispatchCommand($player, "radio next");
+					break;
+				}
+				case "pause":
+				{
+					$player->getServer()->dispatchCommand($player, "radio pause");
+					break;
+				}
+				case "previous":
+				{
+					$player->sendMessage("Under todo, can not play previous yet");
+					break;
+				}
+				case "volume":
+				{
+					$player->getServer()->dispatchCommand($player, "radio volume");
+					break;
+				}
+				case "select":
+				{
+					$player->getServer()->dispatchCommand($player, "radio select");
+					break;
+				}
+				case null://closed UI
+				{
+					break;
+				}
+				default:
+				{
+					$player->sendMessage("Invalid command");
+					break;
+				}
+			}
+		}))
+			->setTitle($title);
+		if($sender->hasPermission("pocketradio.command.radio.next")) $form->addButton("Next", label: "next");//TODO display next song
+		if($sender->hasPermission("pocketradio.command.radio.pause")) $form->addButton("Pause", label: "pause");
+		if($sender->hasPermission("pocketradio.command.radio.volume")) $form->addButton("Volume (" . Loader::getVolume($sender) . "%%)", label: "volume");
+		if($sender->hasPermission("pocketradio.command.radio.select")) $form->addButton("Select song (" . count(Loader::$songlist) . ")", label: "select");
+		if(Loader::$task !== null && Loader::getCurrentSong() !== null){
+			$form->setContent("Currently playing: " . Loader::getCurrentSong()->getSongTitleAndAuthorInfo());
+		}else{
+			$form->setContent("No song playing");
+		}
+		$sender->sendForm($form);
+	}
 }

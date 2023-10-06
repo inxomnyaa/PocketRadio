@@ -4,22 +4,20 @@ namespace xenialdan\PocketRadio;
 
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
-use pocketmine\plugin\Plugin;
+use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\Server;
 
-class EventListener implements Listener
-{
-    /** @var Loader */
-    public $owner;
+class EventListener implements Listener{
 
-    public function __construct(Plugin $plugin)
-    {
-        $this->owner = $plugin;
-    }
+	public function onJoin(PlayerJoinEvent $event) : void{
+		if(Loader::$task === null){
+			Loader::getInstance()->startTask();
+		}
+	}
 
-    public function onJoin(PlayerJoinEvent $event)
-    {
-        if (empty(Loader::$tasks)) {
-            $this->owner->startTask();
-        }
-    }
+	public function onLeave(PlayerQuitEvent $event) : void{
+		if(count(Server::getInstance()->getOnlinePlayers()) === 0){
+			Loader::getInstance()->stopTask();
+		}
+	}
 }

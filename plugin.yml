@@ -13,6 +13,10 @@ permissions:
     default: true
   pocketradio.command.radio.next:
     default: op
+  pocketradio.command.radio.pause:
+    default: op
+  pocketradio.command.radio.select:
+    default: op
   pocketradio.command.radio.volume:
     default: true
 ...
