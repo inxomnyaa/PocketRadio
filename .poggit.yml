@@ -7,4 +7,8 @@ projects:
     libs:
     - src: thebigsmilexd/libnbs/libnbs
       version: ^4.2.0
+    - src: WolvesFortress/FormAPI/libFormAPI
+      version: ^2.1.1
+    - src: Paroxity/Commando/Commando
+      version: ^3.1.0
 ...
