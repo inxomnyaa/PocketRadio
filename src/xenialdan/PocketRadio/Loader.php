@@ -5,25 +5,22 @@ namespace xenialdan\PocketRadio;
 use CortexPE\Commando\PacketHooker;
 use Exception;
 use GlobIterator;
+use inxomnyaa\libnbs\NBSFile;
+use inxomnyaa\libnbs\Song;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\utils\Config;
-use inxomnyaa\libnbs\NBSFile;
-use inxomnyaa\libnbs\Song;
 use xenialdan\PocketRadio\commands\RadioCommand;
-use xenialdan\PocketRadio\task\SongPlayerTask;
-use function basename;
-use function var_dump;
+use xenialdan\PocketRadio\playlist\Playlist;
 
 class Loader extends PluginBase{
 	private static ?Loader $instance = null;
 
 	/* Configs */
 	private static Config $volumeConfig;
-	/** @var array<string,Song> */
-	public static array $songlist = [];
+	public static Playlist $serverPlaylist;
 	public static ?TaskHandler $task = null;
 	public const DEFAULT_VOLUME = 50;
 
@@ -38,8 +35,11 @@ class Loader extends PluginBase{
 	public function onLoad() : void{
 		self::$instance = $this;
 		$songPath = $this->getDataFolder() . "songs";
+//		$playlistPath = $this->getDataFolder() . "playlists";
 		@mkdir($songPath);
+//		@mkdir($playlistPath);
 		self::$volumeConfig = new Config($this->getDataFolder() . "volume.yml");
+		self::$serverPlaylist = new Playlist("Server Playlist", Playlist::MODE_RANDOM);
 		$this->getServer()->getAsyncPool()->submitTask(new class($songPath) extends AsyncTask{
 			public function __construct(private string $songPath){ }
 
@@ -73,7 +73,7 @@ class Loader extends PluginBase{
 				foreach($errors as $error){
 					Loader::getInstance()->getLogger()->error($error);
 				}
-				Loader::$songlist = $songlist;
+				Loader::$serverPlaylist->addSongs(...$songlist);
 			}
 		});
 	}
@@ -85,27 +85,10 @@ class Loader extends PluginBase{
 	}
 
 	public function onDisable() : void{
-		$this->stopTask();
-		self::$songlist = [];
+		$this->getScheduler()->cancelAllTasks();
 		$all = array_filter(self::$volumeConfig->getAll(), fn($value) => ((int) floor($value)) !== self::DEFAULT_VOLUME);//remove default volume
 		self::$volumeConfig->setAll($all);
 		self::$volumeConfig->save();
-	}
-
-	public static function getCurrentSong() : ?Song{
-		$song = current(self::$songlist);
-		return $song === false ? null : $song;
-	}
-
-	public static function getRandomSong() : ?Song{
-		return empty(self::$songlist) ? null : self::$songlist[array_rand(self::$songlist)];
-	}
-
-	public static function getNextSong() : ?Song{
-		$song = next(self::$songlist);
-		if($song === false) $song = reset(self::$songlist);
-		if($song === false) $song = self::getRandomSong();//TODO this will only be called if there are no songs, TODO add play queue/playlist
-		return $song;
 	}
 
 	public static function getVolume(Player $player) : int{
@@ -114,24 +97,5 @@ class Loader extends PluginBase{
 
 	public static function setVolume(Player $player, int $volume) : void{
 		self::$volumeConfig->set($player->getName(), $volume);
-	}
-
-	public static function playNext(?Song $song = null) : void{//TODO set playlist pointer?
-		self::getInstance()->startTask($song);
-	}
-
-	public function startTask(?Song $song = null) : void{
-		$song = $song ?? self::getNextSong();
-		if(!$song instanceof Song){
-			$this->getLogger()->warning("Could not start radio: No music found / given");
-			return;
-		}
-		$this->stopTask();
-		Loader::$task = $this->getScheduler()->scheduleDelayedRepeatingTask(new SongPlayerTask($song->getPath(), $song), 20 * 3, intval(floor($song->getDelay())));
-	}
-
-	public function stopTask() : void{
-		Loader::$task?->cancel();
-		Loader::$task = null;
 	}
 }

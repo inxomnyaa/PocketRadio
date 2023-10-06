@@ -9,6 +9,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 use xenialdan\PocketRadio\Loader;
+use xenialdan\PocketRadio\playlist\Playlist;
 
 class RadioPauseCommand extends BaseSubCommand{
 	protected function prepare() : void{
@@ -20,7 +21,7 @@ class RadioPauseCommand extends BaseSubCommand{
 			$sender->sendMessage(TextFormat::RED . "This command can only be used in-game");
 			return;
 		}
-		Loader::getInstance()->stopTask();
-		$sender->sendMessage(TextFormat::GREEN . "Radio paused");
+		Loader::$serverPlaylist->getState() === Playlist::STATE_PLAYING ? Loader::$serverPlaylist->pause() : Loader::$serverPlaylist->play();
+		$sender->sendMessage(TextFormat::GREEN . "Radio " . (Loader::$serverPlaylist->getState() === Playlist::STATE_PLAYING ? "playing" : "paused") . "!");
 	}
 }

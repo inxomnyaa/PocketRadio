@@ -20,11 +20,12 @@ class RadioNextCommand extends BaseSubCommand{
 			$sender->sendMessage(TextFormat::RED . "This command can only be used in-game");
 			return;
 		}
-		Loader::playNext();
-		$song = Loader::getCurrentSong();
+		Loader::$serverPlaylist->stop();
+		$song = Loader::$serverPlaylist->getNext();
 		if($song === null){
-			$sender->sendMessage(TextFormat::RED . "No song playing (playlist is empty)");
+			$sender->sendMessage(TextFormat::RED . "No song playing (playlist queue is empty or at the end)");
 		}else{
+			Loader::$serverPlaylist->play();
 			$sender->sendMessage(TextFormat::GREEN . "Playing next song: " . $song->getSongTitleAndAuthorInfo());
 		}
 	}

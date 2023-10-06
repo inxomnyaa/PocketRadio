@@ -5,19 +5,20 @@ namespace xenialdan\PocketRadio;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
-use pocketmine\Server;
 
 class EventListener implements Listener{
 
 	public function onJoin(PlayerJoinEvent $event) : void{
-		if(Loader::$task === null){
-			Loader::getInstance()->startTask();
+		Loader::$serverPlaylist->subscribe($event->getPlayer());
+		if(Loader::$serverPlaylist->task === null){
+			Loader::$serverPlaylist->play();
 		}
 	}
 
 	public function onLeave(PlayerQuitEvent $event) : void{
-		if(count(Server::getInstance()->getOnlinePlayers()) === 0){
-			Loader::getInstance()->stopTask();
+		Loader::$serverPlaylist->unsubscribe($event->getPlayer());
+		if(count(Loader::$serverPlaylist->getPlayers()) === 0){
+			Loader::$serverPlaylist->stop();
 		}
 	}
 }

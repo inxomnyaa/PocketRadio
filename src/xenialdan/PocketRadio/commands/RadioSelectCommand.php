@@ -21,17 +21,21 @@ class RadioSelectCommand extends BaseSubCommand{
 			$sender->sendMessage(TextFormat::RED . "This command can only be used in-game");
 			return;
 		}
-		$title = TextFormat::BLUE . TextFormat::BOLD . Loader::getInstance()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Select a song (".count(Loader::$songlist)." songs)";
+		$title = TextFormat::BLUE . TextFormat::BOLD . Loader::getInstance()->getDescription()->getPrefix() . " " . TextFormat::RESET . TextFormat::DARK_BLUE . "Select a song (" . Loader::$serverPlaylist->getCount() . " songs)";
 		$form = (new SimpleForm(static function(Player $player, $data) : void{
 			if($data === null){
 				return;
 			}
-			$song = Loader::$songlist[$data];
-			$player->sendMessage(TextFormat::GREEN . "Playing " . $song->getSongTitleAndAuthorInfo());
-			Loader::playNext($song);
+			Loader::$serverPlaylist->stop();
+			if(Loader::$serverPlaylist->seek($data)){
+				Loader::$serverPlaylist->play();
+				$player->sendMessage(TextFormat::GREEN . "Playing " . Loader::$serverPlaylist->getCurrent()->getSongTitleAndAuthorInfo());
+			}else{
+				$player->sendMessage(TextFormat::RED . "Song not found");
+			}
 		}))
 			->setTitle($title);
-		foreach(Loader::$songlist as $songName => $song){//TODO cache the list as it lags the whole server. Maybe split into pages
+		foreach(Loader::$serverPlaylist->getSongs() as $songName => $song){//TODO cache the list as it lags the whole server. Maybe split into pages
 			$form->addButton($song->getTitleOrFilename(), label: $songName);
 		}
 		$sender->sendForm($form);

@@ -10,6 +10,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 use xenialdan\PocketRadio\Loader;
+use xenialdan\PocketRadio\playlist\Playlist;
 
 class RadioCommand extends BaseCommand{
 	protected function prepare() : void{
@@ -67,11 +68,11 @@ class RadioCommand extends BaseCommand{
 		}))
 			->setTitle($title);
 		if($sender->hasPermission("pocketradio.command.radio.next")) $form->addButton("Next", label: "next");//TODO display next song
-		if($sender->hasPermission("pocketradio.command.radio.pause")) $form->addButton("Pause", label: "pause");
+		if($sender->hasPermission("pocketradio.command.radio.pause")) $form->addButton((Loader::$serverPlaylist->getState() === Playlist::STATE_PLAYING ? "Pause" : "Unpause"), label: "pause");
 		if($sender->hasPermission("pocketradio.command.radio.volume")) $form->addButton("Volume (" . Loader::getVolume($sender) . "%%)", label: "volume");
-		if($sender->hasPermission("pocketradio.command.radio.select")) $form->addButton("Select song (" . count(Loader::$songlist) . ")", label: "select");
-		if(Loader::$task !== null && Loader::getCurrentSong() !== null){
-			$form->setContent("Currently playing: " . Loader::getCurrentSong()->getSongTitleAndAuthorInfo());
+		if($sender->hasPermission("pocketradio.command.radio.select")) $form->addButton("Select song (" . Loader::$serverPlaylist->getCount() . ")", label: "select");
+		if(Loader::$serverPlaylist->getCurrent() !== null){
+			$form->setContent("Current song: " . Loader::$serverPlaylist->getCurrent()->getSongTitleAndAuthorInfo() . (Loader::$serverPlaylist->getState() === Playlist::STATE_PAUSED ? " (paused)" : ""));
 		}else{
 			$form->setContent("No song playing");
 		}
