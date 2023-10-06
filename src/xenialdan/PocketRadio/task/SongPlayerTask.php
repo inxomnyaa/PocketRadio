@@ -57,7 +57,7 @@ class SongPlayerTask extends Task{
 			$pitch = 2 ** (($note->getKey() - 45) / 12);
 			$sound = NBSFile::mapping($note->instrument);
 			//TODO custom sound support, figure out path in resource pack
-			$vector = $player->getPosition()->asVector3();
+			$vector = $player->getEyePos()->asVector3();
 			/*if ($layer->stereo !== 100) {//Not centered, modify position. TODO fix
 				$yaw = ($player->yaw - 90) % 360;
 				$add = (new Vector2(-cos(deg2rad($yaw) - M_PI_2), -sin(deg2rad($yaw) - M_PI_2)))->normalize();//use v3->dot?
@@ -65,8 +65,8 @@ class SongPlayerTask extends Task{
 				$add = $add->multiply($multiplier);
 				$vector->add($add->x, 0, $add->y);
 			}*/
-			$player->getNetworkSession()->sendDataPacket(PlaySoundPacket::create($sound, $vector->x, $vector->y + $player->getEyeHeight(), $vector->z, $volume, $pitch));
-			unset($add, $pk, $vector, $note);
+			$player->getNetworkSession()->sendDataPacket(PlaySoundPacket::create($sound, $vector->x, $vector->y, $vector->z, $volume, $pitch));
+			unset($vector, $note);
 		}
 	}
 }
