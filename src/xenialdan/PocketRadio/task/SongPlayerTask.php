@@ -9,8 +9,8 @@ use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\scheduler\Task;
 use pocketmine\utils\TextFormat;
-use xenialdan\libnbs\NBSFile;
-use xenialdan\libnbs\Song;
+use inxomnyaa\libnbs\NBSFile;
+use inxomnyaa\libnbs\Song;
 use xenialdan\PocketRadio\Loader;
 
 class SongPlayerTask extends Task{
