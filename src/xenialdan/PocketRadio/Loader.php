@@ -74,6 +74,7 @@ class Loader extends PluginBase{
 					Loader::getInstance()->getLogger()->error($error);
 				}
 				Loader::$serverPlaylist->addSongs(...$songlist);
+				Loader::$serverPlaylist->getNext();//run once in random mode
 			}
 		});
 	}

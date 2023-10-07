@@ -21,7 +21,7 @@ class RadioPauseCommand extends BaseSubCommand{
 			$sender->sendMessage(TextFormat::RED . "This command can only be used in-game");
 			return;
 		}
-		Loader::$serverPlaylist->getState() === Playlist::STATE_PLAYING ? Loader::$serverPlaylist->pause() : Loader::$serverPlaylist->play();
+		Loader::$serverPlaylist->getState() === Playlist::STATE_PLAYING ? Loader::$serverPlaylist->pause() : Loader::$serverPlaylist->play(Playlist::PLAYLIST_UNPAUSED);
 		$sender->sendMessage(TextFormat::GREEN . "Radio " . (Loader::$serverPlaylist->getState() === Playlist::STATE_PLAYING ? "playing" : "paused") . "!");
 	}
 }

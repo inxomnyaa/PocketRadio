@@ -10,6 +10,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use pocketmine\utils\TextFormat;
 use xenialdan\PocketRadio\Loader;
+use xenialdan\PocketRadio\playlist\Playlist;
 
 class RadioSelectCommand extends BaseSubCommand{
 	protected function prepare() : void{
@@ -26,9 +27,9 @@ class RadioSelectCommand extends BaseSubCommand{
 			if($data === null){
 				return;
 			}
-			Loader::$serverPlaylist->stop();
+			Loader::$serverPlaylist->stop(Playlist::PLAYLIST_SELECTED_SONG);
 			if(Loader::$serverPlaylist->seek($data)){
-				Loader::$serverPlaylist->play();
+				Loader::$serverPlaylist->play(Playlist::PLAYLIST_SELECTED_SONG);
 				$player->sendMessage(TextFormat::GREEN . "Playing " . Loader::$serverPlaylist->getCurrent()->getSongTitleAndAuthorInfo());
 			}else{
 				$player->sendMessage(TextFormat::RED . "Song not found");

@@ -24,9 +24,9 @@ class PlaylistPlayTask extends Task{
 			return;
 		}
 		if($this->tick > $this->playlist->getCurrent()->getLength()){
-			$this->playlist->stop();
+			$this->playlist->stop(Playlist::PLAYLIST_SONG_COMPLETE);
 			$this->playlist->getNext();
-			$this->playlist->play();
+			$this->playlist->play(Playlist::PLAYLIST_SONG_COMPLETE);
 			return;
 		}
 		$this->tick++;
