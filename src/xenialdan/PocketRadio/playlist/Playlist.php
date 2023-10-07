@@ -28,8 +28,8 @@ class Playlist{
 	public const STATE_PLAYING = 1;
 	public const STATE_PAUSED = 2;
 
-	public const PLAYLIST_SONG_COMPLETE = 0;
-//	public const PLAYLIST_COMPLETE = 1;
+	public const PLAYLIST_PLUGIN_REASON = 0;//plugins should use this
+	public const PLAYLIST_SONG_COMPLETE = 1;
 	public const PLAYLIST_NO_PLAYERS = 2;
 	public const PLAYLIST_PLAYER_ADDED = 3;
 	public const PLAYLIST_NEXT_SONG = 4;
