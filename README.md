@@ -4,22 +4,31 @@ A lightweight .NBS song player for PocketMine Servers
 ## Prerequisites
 When downloaded from poggit, none.
 
-When manually installing from source, you must install customui and libnbs virions 
+When manually installing from source, you must install the virions 
 
 ## Setup
-1. Put your .nbs files into the generated "songs" folder and reload / restart the server
-
-2. The songs will automatically start to play when a player joins the server
+- Add the plugin to the `plugins` folder
+- Put your .nbs files into the generated "songs" folder and restart the server
+- The songs will automatically start to play when a player joins the server
 
 ## Commands
-Use `/radio next` to skip the current song
+Use `/radio` to open the radio interface
 
-Use `/radio volume` to change your volume
+Use `/radio next` to skip the current song (global)
+
+Use `/radio volume` to change your volume (per player)
+
+Use `/radio pause` to pause or unpause playback (global)
+
+Use `/radio select` to play a specific song (global)
 
 ## Planned changes
-- Change the radio interface to allow searching, skipping, looping songs
-- Add looping, toggle shuffle mode, playlists, per-user songs
-- World settings
+- Change the radio interface to allow searching ✔, skipping ✔, looping songs or playlists
+- Add looping ✔, toggle shuffle mode ✔, playlists ✔, per-user songs
+- World settings (plobably done via external plugin)
+
+## API
+https://github.com/inxomnyaa/PocketRadio/wiki
 
 ## Where do i get .nbs files?
 You can find a collection of .nbs songs here: https://forums.pmmp.io/threads/200-nbs-songs.294/
