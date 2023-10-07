@@ -17,9 +17,9 @@ use xenialdan\PocketRadio\playlist\Playlist;
 
 class Loader extends PluginBase{
 	private static ?Loader $instance = null;
-
 	/* Configs */
 	private static Config $volumeConfig;
+	public const SERVER_PLAYLIST_NAME = "Server Playlist";
 	public static Playlist $serverPlaylist;
 	public static ?TaskHandler $task = null;
 	public const DEFAULT_VOLUME = 50;
@@ -35,11 +35,9 @@ class Loader extends PluginBase{
 	public function onLoad() : void{
 		self::$instance = $this;
 		$songPath = $this->getDataFolder() . "songs";
-//		$playlistPath = $this->getDataFolder() . "playlists";
 		@mkdir($songPath);
-//		@mkdir($playlistPath);
 		self::$volumeConfig = new Config($this->getDataFolder() . "volume.yml");
-		self::$serverPlaylist = new Playlist("Server Playlist", Playlist::MODE_RANDOM);
+		self::$serverPlaylist = new Playlist(self::SERVER_PLAYLIST_NAME, Playlist::MODE_RANDOM);
 		$this->getServer()->getAsyncPool()->submitTask(new class($songPath) extends AsyncTask{
 			public function __construct(private string $songPath){ }
 
@@ -74,7 +72,6 @@ class Loader extends PluginBase{
 					Loader::getInstance()->getLogger()->error($error);
 				}
 				Loader::$serverPlaylist->addSongs(...$songlist);
-				Loader::$serverPlaylist->getNext();//run once in random mode
 			}
 		});
 	}

@@ -44,6 +44,9 @@ class Playlist{
 
 	public function __construct(private string $name, private int $mode = self::MODE_LOOP, Song ...$songs){
 		$this->addSongs(...$songs);
+		if($this->mode == self::MODE_RANDOM){
+			$this->getNext();
+		}
 	}
 
 	/** @return $this */
