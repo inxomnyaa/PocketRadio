@@ -44,7 +44,7 @@ class Playlist{
 
 	public function __construct(private string $name, private int $mode = self::MODE_LOOP, Song ...$songs){
 		$this->addSongs(...$songs);
-		if($this->mode == self::MODE_RANDOM){
+		if($this->mode === self::MODE_RANDOM){
 			$this->getNext();
 		}
 	}
@@ -54,8 +54,12 @@ class Playlist{
 		$ev = new PlaylistModifySongsEvent($this, $songs, PlaylistModifySongsEvent::PLAYLIST_SONGS_ADDED);
 		$ev->call();
 		if(!$ev->isCancelled()){
+			$wasEmpty = $this->isEmpty();
 			foreach($ev->getSongs() as $song){
 				self::$songs[basename($song->getPath(), ".nbs")] = $song;
+			}
+			if($wasEmpty && $this->mode === self::MODE_RANDOM){
+				$this->getNext();
 			}
 		}
 		return $this;

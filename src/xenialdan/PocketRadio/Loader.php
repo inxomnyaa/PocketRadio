@@ -13,6 +13,7 @@ use pocketmine\scheduler\AsyncTask;
 use pocketmine\scheduler\TaskHandler;
 use pocketmine\utils\Config;
 use xenialdan\PocketRadio\commands\RadioCommand;
+use xenialdan\PocketRadio\event\LoadSongsEvent;
 use xenialdan\PocketRadio\playlist\Playlist;
 
 class Loader extends PluginBase{
@@ -38,8 +39,33 @@ class Loader extends PluginBase{
 		@mkdir($songPath);
 		self::$volumeConfig = new Config($this->getDataFolder() . "volume.yml");
 		self::$serverPlaylist = new Playlist(self::SERVER_PLAYLIST_NAME, Playlist::MODE_RANDOM);
-		$this->getServer()->getAsyncPool()->submitTask(new class($songPath) extends AsyncTask{
-			public function __construct(private string $songPath){ }
+		$this->loadSongsFromPathAsync(self::$serverPlaylist, $songPath);
+	}
+
+	public function onEnable() : void{
+		if(!PacketHooker::isRegistered()) PacketHooker::register($this);
+		$this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
+		$this->getServer()->getCommandMap()->register("pocketradio", new RadioCommand($this, "radio"));
+	}
+
+	public function onDisable() : void{
+		$this->getScheduler()->cancelAllTasks();
+		$all = array_filter(self::$volumeConfig->getAll(), fn($value) => ((int) floor($value)) !== self::DEFAULT_VOLUME);//remove default volume
+		self::$volumeConfig->setAll($all);
+		self::$volumeConfig->save();
+	}
+
+	public static function getVolume(Player $player) : int{
+		return self::$volumeConfig->get($player->getName(), self::DEFAULT_VOLUME);
+	}
+
+	public static function setVolume(Player $player, int $volume) : void{
+		self::$volumeConfig->set($player->getName(), $volume);
+	}
+
+	public function loadSongsFromPathAsync(Playlist $playlist, string $songPath) : void{
+		$this->getServer()->getAsyncPool()->submitTask(new class($playlist->getName(), $songPath) extends AsyncTask{
+			public function __construct(private string $playlistName, private string $songPath){ }
 
 			public function onRun() : void{
 				$list = [];
@@ -67,33 +93,9 @@ class Loader extends PluginBase{
 				 * @var string[] $errors
 				 */
 				[$songlist, $errors] = [$result["list"] ?? [], $result["errors"] ?? []];
-				Loader::getInstance()->getLogger()->info("Loaded " . count($songlist) . " songs");
-				foreach($errors as $error){
-					Loader::getInstance()->getLogger()->error($error);
-				}
-				Loader::$serverPlaylist->addSongs(...$songlist);
+				$ev = new LoadSongsEvent($this->playlistName, $songlist, $errors);
+				$ev->call();
 			}
 		});
-	}
-
-	public function onEnable() : void{
-		if(!PacketHooker::isRegistered()) PacketHooker::register($this);
-		$this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
-		$this->getServer()->getCommandMap()->register("pocketradio", new RadioCommand($this, "radio"));
-	}
-
-	public function onDisable() : void{
-		$this->getScheduler()->cancelAllTasks();
-		$all = array_filter(self::$volumeConfig->getAll(), fn($value) => ((int) floor($value)) !== self::DEFAULT_VOLUME);//remove default volume
-		self::$volumeConfig->setAll($all);
-		self::$volumeConfig->save();
-	}
-
-	public static function getVolume(Player $player) : int{
-		return self::$volumeConfig->get($player->getName(), self::DEFAULT_VOLUME);
-	}
-
-	public static function setVolume(Player $player, int $volume) : void{
-		self::$volumeConfig->set($player->getName(), $volume);
 	}
 }
