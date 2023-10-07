@@ -47,6 +47,9 @@ class PlaylistPlayTask extends Task{
 			$sound = NBSFile::mapping($note->instrument);
 			//TODO custom sound support, figure out path in resource pack
 			foreach($this->playlist->getPlayers() as $player){
+				if(Loader::getVolume($player) === 0){
+					continue;
+				}
 				$volume = (($layer->getVolume() * Loader::getVolume($player)) / 10000);
 				$vector = $player->getEyePos()->asVector3();
 				/*if ($layer->stereo !== 100) {//Not centered, modify position. TODO fix
