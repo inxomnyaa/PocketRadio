@@ -16,7 +16,7 @@ class PlaylistPlayTask extends Task{
 	private int $tick = -1;
 
 	public function __construct(private Playlist $playlist){
-		Loader::getInstance()->getServer()->broadcastMessage(TextFormat::GREEN . "Now playing: " . $playlist->getCurrent()->getSongTitleAndAuthorInfo(), $this->playlist->getPlayers());
+		Loader::getInstance()->getServer()->broadcastMessage(TextFormat::GREEN . "Now playing: " . $this->playlist->getCurrent()?->getSongTitleAndAuthorInfo() ?? "None", $this->playlist->getPlayers());
 	}
 
 	public function onRun() : void{

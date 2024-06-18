@@ -51,14 +51,14 @@ class Playlist{
 
 	/** @return $this */
 	public function addSongs(Song ...$songs) : self{
+		$wasEmpty = $this->isEmpty();
 		$ev = new PlaylistModifySongsEvent($this, $songs, PlaylistModifySongsEvent::PLAYLIST_SONGS_ADDED);
 		$ev->call();
 		if(!$ev->isCancelled()){
-			$wasEmpty = $this->isEmpty();
 			foreach($ev->getSongs() as $song){
 				self::$songs[basename($song->getPath(), ".nbs")] = $song;
 			}
-			if($wasEmpty && $this->mode === self::MODE_RANDOM){
+			if ($wasEmpty && $this->mode === self::MODE_RANDOM) {//TODO check if this causes duplicate call, see line 47
 				$this->getNext();
 			}
 		}
@@ -102,11 +102,15 @@ class Playlist{
 	}
 
 	public function play(int $reason) : void{
+		if ($this->isEmpty()) {
+			Loader::getInstance()->getLogger()->error("Tried to play an empty playlist: " . $this->getName());
+			return;
+		}
 		$ev = new PlaylistPlayEvent($this, $reason);
 		$ev->call();
 		if(!$ev->isCancelled()){
 			$this->state = self::STATE_PLAYING;
-			if($this->task === null) $this->task = Loader::getInstance()->getScheduler()->scheduleDelayedRepeatingTask(new PlaylistPlayTask($this), 20 * 3, intval(floor($this->getCurrent()->getDelay())));
+			if ($this->task === null) $this->task = Loader::getInstance()->getScheduler()->scheduleDelayedRepeatingTask(new PlaylistPlayTask($this), 20 * 3, intval(floor($this->getCurrent()->getDelay())));//FIXME check if the next song has the same speed
 		}
 	}
 

@@ -13,7 +13,7 @@ class EventListener implements Listener{
 
 	public function onJoin(PlayerJoinEvent $event) : void{
 		Loader::$serverPlaylist->subscribe($event->getPlayer());
-		if(Loader::$serverPlaylist->task === null){
+		if (Loader::$serverPlaylist->task === null && !Loader::$serverPlaylist->isEmpty()) {
 			Loader::$serverPlaylist->play(Playlist::PLAYLIST_PLAYER_ADDED);
 		}
 	}
